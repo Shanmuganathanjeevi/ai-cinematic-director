@@ -17,6 +17,12 @@ class CanvaAIPrompts(BaseModel):
 
 # --- 2. Helper Function: PDF Generator ---
 def create_pdf(preview_text, camera, lighting, veo_prompt, audio_prompt, canva_design, canva_media):
+    # Helper to clean out emojis and unsupported characters for the default FPDF font
+    def sanitize(text):
+        if not text: return ""
+        # Replaces unsupported characters with a standard '?' to prevent crashing
+        return str(text).encode('latin-1', 'replace').decode('latin-1')
+
     pdf = FPDF()
     pdf.add_page()
     
@@ -27,43 +33,43 @@ def create_pdf(preview_text, camera, lighting, veo_prompt, audio_prompt, canva_d
     pdf.set_font("Helvetica", style="B", size=12)
     pdf.cell(0, 10, "Visual Preview:", ln=True)
     pdf.set_font("Helvetica", size=11)
-    pdf.multi_cell(0, 6, preview_text)
+    pdf.multi_cell(0, 6, sanitize(preview_text))
     pdf.ln(5)
     
     pdf.set_font("Helvetica", style="B", size=12)
     pdf.cell(0, 10, "Camera Setup:", ln=True)
     pdf.set_font("Helvetica", size=11)
-    pdf.multi_cell(0, 6, camera)
+    pdf.multi_cell(0, 6, sanitize(camera))
     pdf.ln(2)
     
     pdf.set_font("Helvetica", style="B", size=12)
     pdf.cell(0, 10, "Lighting:", ln=True)
     pdf.set_font("Helvetica", size=11)
-    pdf.multi_cell(0, 6, lighting)
+    pdf.multi_cell(0, 6, sanitize(lighting))
     pdf.ln(5)
     
     pdf.set_font("Helvetica", style="B", size=12)
     pdf.cell(0, 10, "Final Veo 3.1 Video Prompt:", ln=True)
     pdf.set_font("Helvetica", size=11)
-    pdf.multi_cell(0, 6, veo_prompt)
+    pdf.multi_cell(0, 6, sanitize(veo_prompt))
     pdf.ln(5)
     
     pdf.set_font("Helvetica", style="B", size=12)
     pdf.cell(0, 10, "Audio & Music Prompt (Suno/MusicFX):", ln=True)
     pdf.set_font("Helvetica", size=11)
-    pdf.multi_cell(0, 6, audio_prompt)
+    pdf.multi_cell(0, 6, sanitize(audio_prompt))
     pdf.ln(5)
     
     pdf.set_font("Helvetica", style="B", size=12)
     pdf.cell(0, 10, "Canva Magic Design Prompt:", ln=True)
     pdf.set_font("Helvetica", size=11)
-    pdf.multi_cell(0, 6, canva_design)
+    pdf.multi_cell(0, 6, sanitize(canva_design))
     pdf.ln(2)
     
     pdf.set_font("Helvetica", style="B", size=12)
     pdf.cell(0, 10, "Canva Magic Media Prompt:", ln=True)
     pdf.set_font("Helvetica", size=11)
-    pdf.multi_cell(0, 6, canva_media)
+    pdf.multi_cell(0, 6, sanitize(canva_media))
     
     return pdf.output()
 
