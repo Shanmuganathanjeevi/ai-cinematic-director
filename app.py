@@ -28,26 +28,25 @@ if "theme" not in st.session_state:
     st.session_state.theme = None
 if "mood" not in st.session_state:
     st.session_state.mood = None
+if "user_concept" not in st.session_state:
+    st.session_state.user_concept = None
 if "translated_prompt" not in st.session_state:
     st.session_state.translated_prompt = None
 if "preview_explanation" not in st.session_state:
     st.session_state.preview_explanation = None
 
 # The Elicitation Agent's UI
+# The Elicitation Agent's UI - Now completely generalized
 with st.form("elicitation_form"):
-    st.subheader("1. What is the core subject of your shot?")
-    theme = st.radio("Choose a subject:", 
-                     ["A solitary object illuminating a dark space", 
-                      "An artisan meticulously crafting a detailed product", 
-                      "A dynamic group of people celebrating outdoors"],
-                     label_visibility="collapsed")
+    st.subheader("Describe your vision")
+    st.write("Type any concept, scene, or feeling. The more details you provide about the action, the better the camera science will be.")
     
-    st.subheader("2. How should the scene feel?")
-    mood = st.radio("Choose a mood:", 
-                    ["Cozy, warm, and intimate", 
-                     "Energetic, bright, and dynamic", 
-                     "Mysterious, highly cinematic, and dramatic"],
-                     label_visibility="collapsed")
+    user_concept = st.text_area(
+        "Raw Idea:", 
+        placeholder="e.g., A cyberpunk street vendor cooking noodles in the neon rain, feeling isolated and gritty.",
+        height=150,
+        label_visibility="collapsed"
+    )
     
     submitted = st.form_submit_button("Generate Director's Vision")
 
@@ -56,22 +55,26 @@ if submitted:
     if not api_key:
         st.error("Please enter your Gemini API Key in the sidebar.")
         st.stop()
+    if not user_concept.strip():
+        st.warning("Please describe a vision before submitting.")
+        st.stop()
         
-    st.session_state.theme = theme
-    st.session_state.mood = mood
+    st.session_state.user_concept = user_concept
     
     with st.spinner("Translation Agent is analyzing cinematography..."):
         try:
-            # Initialize the new Google GenAI client
             client = genai.Client(api_key=api_key)
             
-            # The System Prompt guiding the Agent
+            # Updated System Prompt to handle generic inputs
             agent_prompt = f"""
             You are an expert cinematographer and AI video generation prompt engineer.
-            Translate these layman concepts into a highly technical, cinematic video prompt.
+            Take the user's raw, unstructured concept and translate it into a highly technical, 
+            cinematic video prompt optimized for a model like Veo 3.1.
             
-            User Subject: {theme}
-            User Mood: {mood}
+            If the user's concept is vague, infer the best professional camera, lighting, 
+            and motion setups to make the scene look stunning.
+            
+            User's Raw Concept: {st.session_state.user_concept}
             """
             
             # Call Gemini and enforce the Pydantic schema
