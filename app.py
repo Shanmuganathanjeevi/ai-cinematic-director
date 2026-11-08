@@ -71,7 +71,7 @@ def create_pdf(preview_text, camera, lighting, veo_prompt, audio_prompt, canva_d
     pdf.set_font("Helvetica", size=11)
     pdf.multi_cell(0, 6, sanitize(canva_media))
     
-    return pdf.output()
+    return bytes(pdf.output())
 
 # --- 3. App Configuration & Memory Init ---
 st.set_page_config(page_title="AI Cinematic Director", page_icon="🎬", layout="wide")
@@ -266,6 +266,12 @@ if st.session_state.translated_prompt:
     
     st.subheader("🎵 2. Audio Generation (Suno / MusicFX)")
     st.code(st.session_state.audio_prompt, language="text")
+    
+    st.divider()
+    
+    st.markdown("**Master Google Flow Prompt (Video + Audio)**")
+    master_prompt = f"{st.session_state.translated_prompt.veo_prompt} Sound design and music: {st.session_state.audio_prompt}"
+    st.code(master_prompt, language="text")
     
     st.divider()
     
